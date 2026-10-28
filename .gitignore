@@ -1,0 +1,7 @@
+.venv/
+.microgpt/
+.expops-sources/
+.expops-configs/
+__pycache__/
+*.py[cod]
+expops.env

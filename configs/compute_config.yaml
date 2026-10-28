@@ -1,0 +1,36 @@
+# All mount sources are relative to this file.
+provider: local
+num_workers: 6
+options:
+  cleanup: on_success
+  startup_timeout_sec: 120
+  local_cluster_kwargs:
+    memory_limit: 0
+deployment:
+  variables:
+    OPENBLAS_NUM_THREADS: "1"
+    OMP_NUM_THREADS: "1"
+storage:
+  metadata:
+    type: sql
+    dialect: sqlite
+    connection:
+      # SQLite database resolves relative to the project root.
+      database: .microgpt/storage/metadata.db
+  mounts:
+    code:
+      type: local
+      source: ..
+      read_only: true
+    input:
+      type: local
+      source: ../data
+      read_only: true
+    cache:
+      type: local
+      source: ../.microgpt/storage/cache
+      policy:
+        ttl_hours: 720
+    artefact:
+      type: local
+      source: ../.microgpt/storage/artefact

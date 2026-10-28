@@ -1,0 +1,18 @@
+{
+  "gist_revision": "14fb038816c7aae0bb9342c2dbf1a51dd134a5ff",
+  "downloaded_utc": "2026-10-28T11:30:29.660741+00:00",
+  "files": {
+    "source": {
+      "url": "https://gist.githubusercontent.com/karpathy/8627fe009c40f57531cb18360106ce95/raw/14fb038816c7aae0bb9342c2dbf1a51dd134a5ff/microgpt.py",
+      "sha256": "d47d88c2fd432c8ebdc1048beab7f7eb64ea7e0e664e11b812d72a6d95ebccee",
+      "bytes": 9319,
+      "lines": 200
+    },
+    "dataset": {
+      "url": "https://raw.githubusercontent.com/karpathy/makemore/988aa59/names.txt",
+      "sha256": "0a30b5557f192f32ab962680889aac5f6fda0f4cecf40a6d0b5694f58ea8cc4d",
+      "bytes": 228145,
+      "lines": 32033
+    }
+  }
+}

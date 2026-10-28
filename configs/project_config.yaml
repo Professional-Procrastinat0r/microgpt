@@ -1,0 +1,347 @@
+metadata:
+  name: microgpt
+  description: MicroGPT learning-rate/momentum sweep and partitioned validation
+scripts:
+  main: code/src/main.py
+environment:
+  system: {}
+reproducibility:
+  random_seed: 42
+data:
+  inputs:
+    names:
+      path: input/names.txt
+      mode: stream
+experiment:
+  pipeline:
+    process_adjlist: |
+      prepare train_c00
+      prepare score_c00_s0
+      train_c00 score_c00_s0
+      prepare score_c00_s1
+      train_c00 score_c00_s1
+      prepare score_c00_s2
+      train_c00 score_c00_s2
+      train_c00 aggregate_c00
+      score_c00_s0 aggregate_c00
+      score_c00_s1 aggregate_c00
+      score_c00_s2 aggregate_c00
+      prepare train_c01
+      prepare score_c01_s0
+      train_c01 score_c01_s0
+      prepare score_c01_s1
+      train_c01 score_c01_s1
+      prepare score_c01_s2
+      train_c01 score_c01_s2
+      train_c01 aggregate_c01
+      score_c01_s0 aggregate_c01
+      score_c01_s1 aggregate_c01
+      score_c01_s2 aggregate_c01
+      prepare train_c02
+      prepare score_c02_s0
+      train_c02 score_c02_s0
+      prepare score_c02_s1
+      train_c02 score_c02_s1
+      prepare score_c02_s2
+      train_c02 score_c02_s2
+      train_c02 aggregate_c02
+      score_c02_s0 aggregate_c02
+      score_c02_s1 aggregate_c02
+      score_c02_s2 aggregate_c02
+      prepare train_c03
+      prepare score_c03_s0
+      train_c03 score_c03_s0
+      prepare score_c03_s1
+      train_c03 score_c03_s1
+      prepare score_c03_s2
+      train_c03 score_c03_s2
+      train_c03 aggregate_c03
+      score_c03_s0 aggregate_c03
+      score_c03_s1 aggregate_c03
+      score_c03_s2 aggregate_c03
+      prepare train_c04
+      prepare score_c04_s0
+      train_c04 score_c04_s0
+      prepare score_c04_s1
+      train_c04 score_c04_s1
+      prepare score_c04_s2
+      train_c04 score_c04_s2
+      train_c04 aggregate_c04
+      score_c04_s0 aggregate_c04
+      score_c04_s1 aggregate_c04
+      score_c04_s2 aggregate_c04
+      prepare train_c05
+      prepare score_c05_s0
+      train_c05 score_c05_s0
+      prepare score_c05_s1
+      train_c05 score_c05_s1
+      prepare score_c05_s2
+      train_c05 score_c05_s2
+      train_c05 aggregate_c05
+      score_c05_s0 aggregate_c05
+      score_c05_s1 aggregate_c05
+      score_c05_s2 aggregate_c05
+      prepare collect
+      aggregate_c00 collect
+      aggregate_c01 collect
+      aggregate_c02 collect
+      aggregate_c03 collect
+      aggregate_c04 collect
+      aggregate_c05 collect
+    processes:
+    - name: prepare
+      code: main.prepare
+      parameters:
+        validation_documents: 192
+        split_seed: 20261028
+    - name: train_c00
+      code: main.train
+      parameters:
+        configuration: &model_defaults
+          seed: 42
+          n_layer: 1
+          n_embd: 16
+          n_head: 4
+          block_size: 16
+          num_steps: 300
+          beta2: 0.99
+          eps_adam: 1.0e-08
+          learning_rate: 0.003
+          beta1: 0.85
+          configuration_id: lr0030_b85
+        output_key: train_c00
+    - name: score_c00_s0
+      code: main.validate
+      parameters:
+        shard: 0
+        shards: 3
+        trained_key: train_c00
+        output_key: score_c00_s0
+    - name: score_c00_s1
+      code: main.validate
+      parameters:
+        shard: 1
+        shards: 3
+        trained_key: train_c00
+        output_key: score_c00_s1
+    - name: score_c00_s2
+      code: main.validate
+      parameters:
+        shard: 2
+        shards: 3
+        trained_key: train_c00
+        output_key: score_c00_s2
+    - name: aggregate_c00
+      code: main.aggregate
+      parameters:
+        trained_key: train_c00
+        part_keys:
+        - score_c00_s0
+        - score_c00_s1
+        - score_c00_s2
+        output_key: aggregate_c00
+    - name: train_c01
+      code: main.train
+      parameters:
+        configuration:
+          <<: *model_defaults
+          learning_rate: 0.003
+          beta1: 0.9
+          configuration_id: lr0030_b90
+        output_key: train_c01
+    - name: score_c01_s0
+      code: main.validate
+      parameters:
+        shard: 0
+        shards: 3
+        trained_key: train_c01
+        output_key: score_c01_s0
+    - name: score_c01_s1
+      code: main.validate
+      parameters:
+        shard: 1
+        shards: 3
+        trained_key: train_c01
+        output_key: score_c01_s1
+    - name: score_c01_s2
+      code: main.validate
+      parameters:
+        shard: 2
+        shards: 3
+        trained_key: train_c01
+        output_key: score_c01_s2
+    - name: aggregate_c01
+      code: main.aggregate
+      parameters:
+        trained_key: train_c01
+        part_keys:
+        - score_c01_s0
+        - score_c01_s1
+        - score_c01_s2
+        output_key: aggregate_c01
+    - name: train_c02
+      code: main.train
+      parameters:
+        configuration:
+          <<: *model_defaults
+          learning_rate: 0.01
+          beta1: 0.85
+          configuration_id: lr0100_b85
+        output_key: train_c02
+    - name: score_c02_s0
+      code: main.validate
+      parameters:
+        shard: 0
+        shards: 3
+        trained_key: train_c02
+        output_key: score_c02_s0
+    - name: score_c02_s1
+      code: main.validate
+      parameters:
+        shard: 1
+        shards: 3
+        trained_key: train_c02
+        output_key: score_c02_s1
+    - name: score_c02_s2
+      code: main.validate
+      parameters:
+        shard: 2
+        shards: 3
+        trained_key: train_c02
+        output_key: score_c02_s2
+    - name: aggregate_c02
+      code: main.aggregate
+      parameters:
+        trained_key: train_c02
+        part_keys:
+        - score_c02_s0
+        - score_c02_s1
+        - score_c02_s2
+        output_key: aggregate_c02
+    - name: train_c03
+      code: main.train
+      parameters:
+        configuration:
+          <<: *model_defaults
+          learning_rate: 0.01
+          beta1: 0.9
+          configuration_id: lr0100_b90
+        output_key: train_c03
+    - name: score_c03_s0
+      code: main.validate
+      parameters:
+        shard: 0
+        shards: 3
+        trained_key: train_c03
+        output_key: score_c03_s0
+    - name: score_c03_s1
+      code: main.validate
+      parameters:
+        shard: 1
+        shards: 3
+        trained_key: train_c03
+        output_key: score_c03_s1
+    - name: score_c03_s2
+      code: main.validate
+      parameters:
+        shard: 2
+        shards: 3
+        trained_key: train_c03
+        output_key: score_c03_s2
+    - name: aggregate_c03
+      code: main.aggregate
+      parameters:
+        trained_key: train_c03
+        part_keys:
+        - score_c03_s0
+        - score_c03_s1
+        - score_c03_s2
+        output_key: aggregate_c03
+    - name: train_c04
+      code: main.train
+      parameters:
+        configuration:
+          <<: *model_defaults
+          learning_rate: 0.03
+          beta1: 0.85
+          configuration_id: lr0300_b85
+        output_key: train_c04
+    - name: score_c04_s0
+      code: main.validate
+      parameters:
+        shard: 0
+        shards: 3
+        trained_key: train_c04
+        output_key: score_c04_s0
+    - name: score_c04_s1
+      code: main.validate
+      parameters:
+        shard: 1
+        shards: 3
+        trained_key: train_c04
+        output_key: score_c04_s1
+    - name: score_c04_s2
+      code: main.validate
+      parameters:
+        shard: 2
+        shards: 3
+        trained_key: train_c04
+        output_key: score_c04_s2
+    - name: aggregate_c04
+      code: main.aggregate
+      parameters:
+        trained_key: train_c04
+        part_keys:
+        - score_c04_s0
+        - score_c04_s1
+        - score_c04_s2
+        output_key: aggregate_c04
+    - name: train_c05
+      code: main.train
+      parameters:
+        configuration:
+          <<: *model_defaults
+          learning_rate: 0.03
+          beta1: 0.9
+          configuration_id: lr0300_b90
+        output_key: train_c05
+    - name: score_c05_s0
+      code: main.validate
+      parameters:
+        shard: 0
+        shards: 3
+        trained_key: train_c05
+        output_key: score_c05_s0
+    - name: score_c05_s1
+      code: main.validate
+      parameters:
+        shard: 1
+        shards: 3
+        trained_key: train_c05
+        output_key: score_c05_s1
+    - name: score_c05_s2
+      code: main.validate
+      parameters:
+        shard: 2
+        shards: 3
+        trained_key: train_c05
+        output_key: score_c05_s2
+    - name: aggregate_c05
+      code: main.aggregate
+      parameters:
+        trained_key: train_c05
+        part_keys:
+        - score_c05_s0
+        - score_c05_s1
+        - score_c05_s2
+        output_key: aggregate_c05
+    - name: collect
+      code: main.collect
+      parameters:
+        result_keys:
+        - aggregate_c00
+        - aggregate_c01
+        - aggregate_c02
+        - aggregate_c03
+        - aggregate_c04
+        - aggregate_c05
